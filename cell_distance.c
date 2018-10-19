@@ -11,7 +11,7 @@
 #define LINELENGTH 3*NUMLENGTH //Not sure
 #define LINES 1000
 
-
+//Test comment
 int main(int argc, char *argv[])
 {
 	FILE * infile;
