@@ -42,7 +42,10 @@ int main(int argc, char *argv[])
 
 	nPoints = lSize/24;	//There might be fewer points than this
 //	nChunks = (nPoints + LINELENGTH*LINES - 1)/(LINELENGTH*LINES);	//TODO: Orphaned
-	float x[nPoints], y[nPoints], z[nPoints];
+//	float x[nPoints], y[nPoints], z[nPoints];
+	float * x = (float*) malloc ( nPoints*sizeof(float) );
+	float * y = (float*) malloc ( nPoints*sizeof(float) );
+	float * z = (float*) malloc ( nPoints*sizeof(float) );
 	int   nOfDiffs[3500] = {0};
 	size_t nThreads = 1;
 	for ( size_t ix = 1; ix < argc; ++ix ) 
@@ -92,32 +95,33 @@ omp_set_num_threads(nThreads);
 				z[px] = strtof (bfr2 + LINELENGTH*(px - cx*LINES) + 2*NUMLENGTH, NULL);
 			}
 			fclose(infile);
-		}
-	}
+		
+	
 
 #ifdef TIMECHECK
 		
-	timespec_get (&stop,  TIME_UTC);
-	tDiff = 1000000000*(stop.tv_sec - start.tv_sec) + (stop.tv_nsec - start.tv_nsec);
-	printf ( "Time to read and parse: %d.%.9d\n", tDiff/1000000000, tDiff%1000000000 );
+			timespec_get (&stop,  TIME_UTC);
+			tDiff = 1000000000*(stop.tv_sec - start.tv_sec) + (stop.tv_nsec - start.tv_nsec);
+			printf ( "Time to read and parse: %d.%.9d\n", tDiff/1000000000, tDiff%1000000000 );
 #endif
-
-	//handler
-#pragma omp parallel for schedule(guided) reduction(+:nOfDiffs)
-	for ( size_t px1=0; px1 < nPoints; ++px1 ) {
-		for ( size_t px2=0; px2 < px1; ++px2 ) {
-			float xDiff = x[px1]-x[px2];		//TODO: Try to vectorize?
-			float yDiff = y[px1]-y[px2];
-			float zDiff = z[px1]-z[px2];
-			float diff  = sqrtf ( xDiff*xDiff + yDiff*yDiff + zDiff*zDiff );
-			int iDiff = (int)(diff*100 + .5);
+		}
+		//handler
+#pragma omp for schedule(guided) reduction(+:nOfDiffs)
+		for ( size_t px1=0; px1 < nPoints; ++px1 ) {
+			for ( size_t px2=0; px2 < px1; ++px2 ) {
+				float xDiff = x[px1]-x[px2];		//TODO: Try to vectorize?
+				float yDiff = y[px1]-y[px2];
+				float zDiff = z[px1]-z[px2];
+				float diff  = sqrtf ( xDiff*xDiff + yDiff*yDiff + zDiff*zDiff );
+				int iDiff = (int)(diff*100 + .5);
 #ifdef DEBUG
-			if ( iDiff >= 3500 ) {
-				printf ( "Distance too large: %d\n", iDiff );
-				exit(1);
-			}
+				if ( iDiff >= 3500 ) {
+					printf ( "Distance too large: %d\n", iDiff );
+					exit(1);
+				}
 #endif
-			nOfDiffs[iDiff]++;
+				nOfDiffs[iDiff]++;
+			}
 		}
 	}
 	
@@ -136,5 +140,8 @@ omp_set_num_threads(nThreads);
 #endif
 
 	free(data);
+	free(x);
+	free(y);
+	free(z);
 	return 0;
 }
