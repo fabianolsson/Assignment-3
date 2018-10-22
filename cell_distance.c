@@ -42,10 +42,10 @@ int main(int argc, char *argv[])
 
 	nPoints = lSize/24;	//There might be fewer points than this
 //	nChunks = (nPoints + LINELENGTH*LINES - 1)/(LINELENGTH*LINES);	//TODO: Orphaned
-	float x[nPoints], y[nPoints], z[nPoints];
-//	float * x = (float*) malloc ( nPoints*sizeof(float) );
-//	float * y = (float*) malloc ( nPoints*sizeof(float) );
-//	float * z = (float*) malloc ( nPoints*sizeof(float) );
+//	float x[nPoints], y[nPoints], z[nPoints];
+	float * x = (float*) malloc ( nPoints*sizeof(float) );
+	float * y = (float*) malloc ( nPoints*sizeof(float) );
+	float * z = (float*) malloc ( nPoints*sizeof(float) );
 	int   nOfDiffs[3500] = {0};
 	size_t nThreads = 1;
 	for ( size_t ix = 1; ix < argc; ++ix ) 
@@ -140,8 +140,8 @@ omp_set_num_threads(nThreads);
 #endif
 
 	free(data);
-//	free(x);
-//	free(y);
-//	free(z);
+	free(x);
+	free(y);
+	free(z);
 	return 0;
 }
