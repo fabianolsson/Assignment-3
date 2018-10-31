@@ -10,7 +10,7 @@
 #define NUMLENGTH  8
 #define LINELENGTH 3*NUMLENGTH //Not sure
 #define LINES 1000
-#define BLOCK 20000
+#define BLOCK 40000
 
 int main(int argc, char *argv[])
 {
